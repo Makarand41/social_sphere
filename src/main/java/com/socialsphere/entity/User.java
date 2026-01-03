@@ -1,11 +1,11 @@
 package com.socialsphere.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -20,9 +20,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String fullName;
-
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -32,11 +29,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String profilePictureUrl;
-
-    @Column(length = 500)
-    private String bio;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
@@ -44,9 +36,8 @@ public class User {
     @Column(nullable = false)
     private String accountStatus; // ACTIVE, DEACTIVATED, BANNED
 
-    private boolean isPrivate;
-
-    private LocalDateTime lastLoginAt;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserInfo userInfo;
 
     @CreationTimestamp
     @Column(updatable = false)

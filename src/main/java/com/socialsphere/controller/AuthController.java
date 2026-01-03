@@ -1,15 +1,11 @@
 package com.socialsphere.controller;
 
-
-
-
+import com.socialsphere.entity.User;
+import com.socialsphere.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.socialsphere.entity.User;
-import com.socialsphere.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,8 +16,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
-        User savedUser = userService.registerUser(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                userService.registerUser(user),
+                HttpStatus.CREATED
+        );
     }
-
 }

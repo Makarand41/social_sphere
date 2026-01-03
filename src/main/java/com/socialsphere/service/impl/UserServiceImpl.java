@@ -1,46 +1,31 @@
-package com.socialsphere.service.impl;
+package com.socialsphere.controller;
 
-import com.socialsphere.entity.Role;
 import com.socialsphere.entity.User;
-import com.socialsphere.repository.RoleRepository;
-import com.socialsphere.repository.UserRepository;
+import com.socialsphere.entity.UserInfo;
 import com.socialsphere.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Service
+@RestController
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class AuthController {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-    @Override
-    public User registerUser(User user) {
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
 
-        // 1. Check email uniqueness
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
+        // Build UserInfo from incoming request
+        UserInfo userInfo = UserInfo.builder()
+                .fullName(user.getUserInfo() != null ? user.getUserInfo().getFullName() : null)
+                .build();
 
-        // 2. Check username uniqueness
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("Username already exists");
-        }
+        user.setUserInfo(userInfo);
 
-        // 3. Fetch USER role
-        Role userRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new RuntimeException("USER role not found"));
-
-        // 4. Set system-controlled fields
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(userRole);
-        user.setAccountStatus("ACTIVE");
-        user.setPrivate(false);
-
-        // 5. Save user
-        return userRepository.save(user);
+        User savedUser = userService.registerUser(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 }
